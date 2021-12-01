@@ -1,0 +1,11 @@
+# Ignoring blank extension executables
+*
+!*.*
+!*/
+
+# Haskell built files
+*.hi
+*.o
+*.exe
+
+.DS_STORE
