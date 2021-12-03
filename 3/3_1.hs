@@ -1,6 +1,6 @@
 import System.IO
 import Data.Char (digitToInt)
-import Data.List (foldl')
+import Data.List (foldl', transpose)
 
 main :: IO()
 main = do
@@ -8,21 +8,30 @@ main = do
     contents <- hGetContents handle
     let strs = lines contents
 
-    let gammaVal = gamma strs 0
+    let gammaVal = gamma (transpose strs)
     let epsilonVal = epsilon gammaVal
 
     print (convert gammaVal * convert epsilonVal)
     hClose handle
 
 
-gamma :: [String] -> Int -> [Char]
-gamma list index
-    | index >= length (head list) = []
-    | res > 0 = '1' : next
-    | otherwise = '0' : next
-    where
-        res = getColumnMajority [binary!!index | binary <- list]
-        next = gamma list (index+1)
+gamma :: [String] -> String
+gamma = map conc
+
+
+conc :: String -> Char
+conc str
+    | majority str > 0 = '1'
+    | otherwise = '0'
+
+majority :: [Char] -> Int
+majority str = foldl' (+) 0 (map count str)
+
+
+count :: Char -> Int
+count '1' = 1
+count '0' = -1
+count _ = 0
 
 
 epsilon :: [Char] -> [Char]
@@ -33,13 +42,6 @@ epsilonHelper :: Char -> Char
 epsilonHelper '1' = '0'
 epsilonHelper '0' = '1'
 epsilonHelper _ = '2'
-
-
-getColumnMajority :: [Char] -> Int
-getColumnMajority [] = 0
-getColumnMajority ('1':xs) = getColumnMajority xs + 1
-getColumnMajority ('0':xs) = getColumnMajority xs - 1
-getColumnMajority (_:xs) = getColumnMajority xs
 
 convert :: String -> Int
 convert = foldl' (\acc x -> acc * 2 + digitToInt x) 0
