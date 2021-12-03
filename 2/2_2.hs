@@ -18,7 +18,7 @@ calc ((dir, val):xs) aim
     | dir == "up" = calc xs (aim-val)
     | dir == "down" = calc xs (aim+val)
     | dir == "forward" = (val+x, y+(val*aim))
-    | otherwise = calc xs aim
+    | otherwise = final
     where
         final = calc xs aim
         x = fst final
