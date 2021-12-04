@@ -8,19 +8,15 @@ main = do
     contents <- hGetContents handle
     let strs = lines contents
 
-    let gammaVal = gamma (transpose strs)
-    let epsilonVal = epsilon gammaVal
+    let gammaVal = map gamma (transpose strs)
+    let epsilonVal = map epsilon gammaVal
 
     print (convert gammaVal * convert epsilonVal)
     hClose handle
 
 
-gamma :: [String] -> String
-gamma = map conc
-
-
-conc :: String -> Char
-conc str
+gamma :: String -> Char
+gamma str
     | majority str > 0 = '1'
     | otherwise = '0'
 
@@ -34,14 +30,10 @@ count '0' = -1
 count _ = 0
 
 
-epsilon :: [Char] -> [Char]
-epsilon = map epsilonHelper
-
-
-epsilonHelper :: Char -> Char
-epsilonHelper '1' = '0'
-epsilonHelper '0' = '1'
-epsilonHelper _ = '2'
+epsilon :: Char -> Char
+epsilon '1' = '0'
+epsilon '0' = '1'
+epsilon _ = '2'
 
 convert :: String -> Int
 convert = foldl' (\acc x -> acc * 2 + digitToInt x) 0
