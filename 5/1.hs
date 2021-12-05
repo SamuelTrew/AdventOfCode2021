@@ -1,23 +1,40 @@
 import System.IO
-import Data.List (elemIndex, transpose, foldl', intersect)
 import Data.List.Split (splitOn)
-import Data.Maybe (fromJust)
+import qualified Data.HashSet as HashSet
+
+type Point = (Int, Int)
 
 
 main :: IO()
 main = do
-    handle <- openFile "5.txt" ReadMode
-    contents <- hGetContents handle
+   handle <- openFile "5.txt" ReadMode
+   contents <- hGetContents handle
 
-    let ls = lines contents
-    let moves = [words line | line <- ls]
-    let fromTo = coords moves
-    print fromTo
+   let ls = lines contents
+   let moves = [words line | line <- ls]
+   let fromTo = coords moves
+   let lines = (concat . (map makeLine)) fromTo
+   let set = HashSet.fromList lines
 
-    hClose handle
+   print ((length lines) - (length set))
+
+   hClose handle
 
 
-coords :: [[String]] -> [((Int, Int), (Int, Int))]
+makeLine :: (Point, Point) -> [Point]
+makeLine ((a1, a2), (b1, b2))
+   | a1 == b1 = [(a1, n) | n <- (lineRange (a2) (b2))]
+   | a2 == b2 = [(n, a2) | n <- (lineRange (a1) (b1))]
+   | otherwise = []
+
+
+lineRange :: Int -> Int -> [Int]
+lineRange x y
+   | x > y = [y..x]
+   | otherwise = [x..y]
+
+
+coords :: [[String]] -> [(Point, Point)]
 coords ([from, _, to]:xs) = [(fakeToReal from, fakeToReal to)]++(coords xs)
 coords _ = []
 
