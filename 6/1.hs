@@ -2,9 +2,6 @@ import System.IO
 import Data.List.Split (splitOn)
 import Data.List (groupBy, sort)
 
-type Point = (Int, Int)
-
-
 main :: IO()
 main = do
    handle <- openFile "6.txt" ReadMode

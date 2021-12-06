@@ -1,42 +1,26 @@
 import System.IO
 import Data.List.Split (splitOn)
-import Data.List (groupBy, sort)
-
-type Point = (Int, Int)
-
+import Data.List (group, sort, foldl')
 
 main :: IO()
 main = do
    handle <- openFile "6.txt" ReadMode
    contents <- hGetContents handle
 
-   let states = map read (splitOn "," contents)
+   let states = (map read (splitOn "," contents))::[Int]
+   let pairs = (group . sort) states
+   let groups = [0]++(map length pairs)++[0, 0, 0]
 
-   print (length (bruteForce states 0))
+   print (foldl' (+) 0 (iterator groups 0))
 
    hClose handle
 
 
-bruteForce :: [Int] -> Int -> [Int]
-bruteForce states 256 = states
-bruteForce states day = bruteForce next (day+1)
-   where
-      next = update (sub states)
+shifter :: [Int] -> [Int]
+shifter (x0:x1:x2:x3:x4:x5:x6:x7:x8) = (x1:x2:x3:x4:x5:x6:(x7+x0):(head x8):x0:[])
 
 
-update :: [Int] -> [Int]
-update states = map fix states ++ map (const 8) [1..(count (-1) states)]
+iterator :: [Int] -> Int -> [Int]
+iterator counts 256 = counts
+iterator counts index = iterator (shifter counts) (index+1)
 
-
-sub :: [Int] -> [Int]
-sub = map (subtract 1)
-
-
-fix :: Int -> Int
-fix x
-   | x == -1 = 6
-   | otherwise = x
-
-
-count :: Eq a => a -> [a] -> Int
-count x = length . filter (==x)
