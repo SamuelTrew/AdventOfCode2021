@@ -14,11 +14,22 @@ main = do
    let moves = [words line | line <- ls]
    let fromTo = coords moves
    let lines = (concat . (map makeLine)) fromTo
-   let set = HashSet.fromList lines
+   -- let set = HashSet.fromList lines
 
-   print ((length lines) - (length set))
+   print (findDuplicates lines [] [])
 
    hClose handle
+
+
+findDuplicates :: [Point] -> [Point] -> [Point] -> Int
+findDuplicates [] _ _ = 0
+findDuplicates (l:ls) next dupls
+   | (not nextL) && (not duplsL) = findDuplicates ls (l:next) dupls
+   | nextL && (not duplsL) = 1 + findDuplicates ls next (l:dupls)
+   | nextL && duplsL = findDuplicates ls next dupls
+   where
+      nextL = elem l next
+      duplsL = elem l dupls
 
 
 makeLine :: (Point, Point) -> [Point]
