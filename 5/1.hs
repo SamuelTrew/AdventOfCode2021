@@ -1,5 +1,6 @@
 import System.IO
 import Data.List.Split (splitOn)
+import Data.List (groupBy, sort)
 
 type Point = (Int, Int)
 
@@ -12,22 +13,22 @@ main = do
    let ls = lines contents
    let moves = [words line | line <- ls]
    let fromTo = coords moves
-   let lines = (concat . (map makeLine)) fromTo
+   let connections = (concat . (map makeLine)) fromTo
+   let sorted = (groupTuples . sort) connections
 
-   print (findDuplicates lines [] [])
+   print (findDuplicates sorted)
 
    hClose handle
 
+groupTuples :: [Point] -> [[Point]]
+groupTuples = groupBy (\a b -> fst a == fst b && snd a == snd b)
 
-findDuplicates :: [Point] -> [Point] -> [Point] -> Int
-findDuplicates (l:ls) next dupls
-   | (not nextL) && (not duplsL) = findDuplicates ls (l:next) dupls
-   | nextL && (not duplsL) = 1 + findDuplicates ls next (l:dupls)
-   | nextL && duplsL = findDuplicates ls next dupls
-   where
-      nextL = elem l next
-      duplsL = elem l dupls
-findDuplicates _ _ _ = 0
+
+findDuplicates :: [[Point]] -> Int
+findDuplicates [] = 0
+findDuplicates (x:xs)
+   | length x > 1 = 1 + (findDuplicates xs)
+   | otherwise = findDuplicates xs
 
 
 makeLine :: (Point, Point) -> [Point]
