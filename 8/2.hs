@@ -1,6 +1,7 @@
 import System.IO
 import Data.List.Split (splitOn)
-import Data.List (sort, foldl', elemIndex)
+import Data.List
+
 
 main :: IO()
 main = do
@@ -13,31 +14,40 @@ main = do
    let sorted = map order inputs
    let codes = map (words . (!!1)) positions
 
-   print $ convertAll sorted codes
+   let results = map concat (convertAll sorted codes)
+   print $ sum (map read results)
 
 
    hClose handle
 
 
-convertAll :: [[String]] -> [[String]] -> [String]
-convertAll (s:ss) (c:cs) = (convert s c):(convertAll ss cs)
+convertAll :: [[String]] -> [[String]] -> [[String]]
+convertAll (s:ss) (c:cs) = (convert s c 0):(convertAll ss cs)
 convertAll _ _ = []
 
 
-convert :: [String] -> [String] -> String
-convert sorted codes = concat $ map (\x -> show (elemIndex x sorted)) codes
+convert :: [String] -> [String] -> Int -> [String]
+convert _ [] _ = []
+convert list (_:cs) 10 = convert list cs 0
+convert list (c:cs) index
+   | equalCodes (list!!index) c = (show index):(convert list cs 0)
+   | otherwise = convert list (c:cs) (index+1)
+
+
+equalCodes :: String -> String -> Bool
+equalCodes x y = null (x \\ y) && null (y \\ x)
 
 
 order :: [String] -> [String]
-order inputs = (zero:one:two:three:four:five:six:seven:eight:nine:[])
+order inputs = [zero,one,two,three,four,five,six,seven,eight,nine]
    where
-   zero = getWithinCodes (is0or6or9 inputs) eight
+   zero = theOther (is0or6or9 inputs) [six, nine]
    one = getN 2 inputs
    two = theOther (is2or3or5 inputs) [three, five]
    three = getFromCodes (is2or3or5 inputs) one
    four = getN 4 inputs
-   five = getWithinCodes (is2or3or5 inputs) six
-   six = theOther (is0or6or9 inputs) [zero, nine]
+   five = get5 (is2or3or5 inputs) six
+   six = get6 (is0or6or9 inputs) one
    seven = getN 3 inputs
    eight = getN 7 inputs
    nine = getFromCodes (is0or6or9 inputs) four
@@ -47,16 +57,20 @@ getN :: Int -> [String] -> String
 getN len inputs = head (filter (\x -> length x == len) inputs)
 
 
+get5 :: [String] -> String -> String
+get5 inputs six = head (filter (\x -> containsChars six x) inputs)
+
+
+get6 :: [String] -> String -> String
+get6 inputs one = head (filter (\x -> not $ containsChars x one) inputs)
+
+
 getFromCodes :: [String] -> String -> String
 getFromCodes inputs codes = head (filter (\x -> containsChars x codes) inputs)
 
 
 theOther :: [String] -> [String] -> String
 theOther total found = head (filter (\x -> not (elem x found)) total)
-
-
-getWithinCodes :: [String] -> String -> String
-getWithinCodes inputs codes = head (filter (\x -> containsChars codes x) inputs)
 
 
 containsChars :: String -> String -> Bool
