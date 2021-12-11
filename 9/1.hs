@@ -13,9 +13,7 @@ main = do
    let padded = hPad . vPad $ positions
    let res = map succ (convolve padded (1, 1) [])
 
-
    print $ sum res
-
 
    hClose handle
 
