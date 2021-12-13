@@ -16,8 +16,6 @@ main = do
    let sizes = [move padded point (padded!!(fst point)!!(snd point) - 1) | point <- res]
    let areas = map (length . Set.fromList) sizes
 
-   print areas
-   print $ take 3 (reverse $ sort areas)
    print $ foldl' (*) 1 $ take 3 (reverse $ sort areas)
 
    hClose handle
@@ -26,7 +24,7 @@ main = do
 move :: [[Int]] -> (Int, Int) -> Int -> [(Int, Int)]
 move matrix (y, x) prev
    | curr == 9 = []
-   | curr - prev /= 1 = []
+   | curr <= prev = []
    | otherwise = [(y,x)]++right++left++up++down
    where
       curr = matrix!!y!!x
