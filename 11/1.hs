@@ -9,8 +9,8 @@ main = do
 
    let energies = (map . map) digitToInt (lines contents)
    let padded = hPad . vPad $ energies
-   let (res, c) = stepN padded 100
-   mapM print $ res
+   let (_, c) = stepN padded 100
+
    print c
 
    hClose handle
