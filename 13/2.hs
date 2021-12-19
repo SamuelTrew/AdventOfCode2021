@@ -1,9 +1,10 @@
 import System.IO
 import Data.List.Split (splitOn)
-import Data.List (groupBy, sortOn)
+import Data.List (groupBy, sortOn, maximumBy)
+import Data.Ord (comparing)
 import qualified Data.Map as Map
 import Data.Char (isUpper)
-import Data.Set (fromList)
+import Data.Set (fromList, Set, member)
 
 
 main :: IO()
@@ -17,13 +18,18 @@ main = do
    let cmds = (map (\x -> (splitOn " " x)!!2) commands)
 
    let res = folding cmds points
-   print $ length $ fromList res
+   let x = fst $ maximumBy (comparing fst) res
+   let y = snd $ maximumBy (comparing snd) res
+
+   mapM print [[format (x1,y1) (fromList res) | x1 <- [0..x]] | y1 <- [0..y]]
 
    hClose handle
 
 
-format :: [(Int, Int)] -> [String]
-format points
+format :: (Int, Int) -> Set (Int, Int) -> Char
+format point points
+   | member point points = '#'
+   | otherwise = '.'
 
 
 folding :: [String] -> [(Int, Int)] -> [(Int, Int)]

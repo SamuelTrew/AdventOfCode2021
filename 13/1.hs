@@ -1,8 +1,5 @@
 import System.IO
 import Data.List.Split (splitOn)
-import Data.List (groupBy, sortOn)
-import qualified Data.Map as Map
-import Data.Char (isUpper)
 import Data.Set (fromList)
 
 
