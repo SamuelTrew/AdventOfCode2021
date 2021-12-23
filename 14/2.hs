@@ -12,33 +12,33 @@ main = do
 
    let ls = lines contents
    let template = head ls
-   let rules = map (\x -> (x!!0, x!!1!!0)) $ map (splitOn " -> ") $ drop 2 ls
+   let rules = map ((\x -> (head x, head (x!!1))) . splitOn " -> ") (drop 2 ls)
 
    let counts = Map.fromList $ initS template
    let ruleMap = Map.fromList rules
 
    let chain = Map.toList $ growN ruleMap counts 10
-
    let combined = Map.toList $ (update . extract) chain
-   let counts = map ((`div` 2) . snd) combined
-   print $ (maximum counts) - (minimum counts)
+   let counts = map ((`div` 2) . snd) (Map.toList . update $ combined++[(head template, 2), (template!!(length template -1), 2)])
+
+   print $ maximum counts - minimum counts
 
    hClose handle
 
 
 extract :: [(String, Int)] -> [(Char, Int)]
 extract [] = []
-extract (x:xs) = ((x1, p):(x2, p):(extract xs))
+extract (x:xs) = (x1, p):(x2, p):extract xs
    where
       ([x1, x2], p) = x
 
 
 -- update :: [(a, Int)] -> Map.Map a Int
-update grown = foldl' (\y x -> Map.insertWith (+) (fst x) (snd x) y) Map.empty grown
+update grown = foldl' (flip (uncurry (Map.insertWith (+)))) Map.empty grown
 
 
 initS :: String -> [(String, Int)]
-initS (t:t':ts) = (([t,t'], 1):(initS (t':ts)))
+initS (t:t':ts) = ([t,t'], 1):initS (t':ts)
 initS _ = []
 
 
@@ -54,8 +54,8 @@ grow rules counts p = [(left, count), (right, count)]
    where
       count = definiteLookup $ Map.lookup p counts
       find = definiteLookup $ Map.lookup p rules
-      left = [p!!0,find]
-      right = [find,p!!0]
+      left = [head p,find]
+      right = [find,p!!1]
 
 
 definiteLookup :: Maybe a -> a
