@@ -15,8 +15,11 @@ main = do
 
    let ruleMap = Map.fromList rules
 
-   let chain = growN template ruleMap 10
+   let chain = growN template ruleMap 1
+   print chain
    let counts = map length $ (group . sort) chain
+   print $ map (\x -> (head x, length x)) $ (group . sort) chain
+   print counts
 
    print $ (maximum counts) - (minimum counts)
 

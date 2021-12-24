@@ -17,9 +17,12 @@ main = do
    let counts = Map.fromList $ initS template
    let ruleMap = Map.fromList rules
 
-   let chain = Map.toList $ growN ruleMap counts 10
+   let chain = Map.toList $ growN ruleMap counts 1
+   print chain
    let combined = Map.toList $ (update . extract) chain
-   let counts = map ((`div` 2) . snd) (Map.toList . update $ combined++[(head template, 2), (template!!(length template -1), 2)])
+   print combined
+   print $ map (\x -> (fst x, (`div` 2) . (+1) . snd $ x)) (Map.toList . update $ combined++[(head template, 2), (template!!(length template -1), 2)])
+   let counts = map ((`div` 2) . (+1) . snd) (Map.toList . update $ combined++[(head template, 2), (template!!(length template -1), 2)])
 
    print $ maximum counts - minimum counts
 
@@ -34,7 +37,7 @@ extract (x:xs) = (x1, p):(x2, p):extract xs
 
 
 -- update :: [(a, Int)] -> Map.Map a Int
-update grown = foldl' (flip (uncurry (Map.insertWith (+)))) Map.empty grown
+update grown = foldl' (flip . uncurry $ Map.insertWith (+)) Map.empty grown
 
 
 initS :: String -> [(String, Int)]
@@ -44,7 +47,7 @@ initS _ = []
 
 growN :: Map.Map String Char -> Map.Map String Int -> Int -> Map.Map String Int
 growN _ counts 0 = counts
-growN rules counts n = growN rules (update grown) (n-1)
+growN rules counts n = trace (show grown) growN rules (update grown) (n-1)
    where
       grown = concatMap (grow rules counts) (Map.keys counts)
 
